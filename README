@@ -1,0 +1,74 @@
+Copyright 2021-2022 313CA Mitran Andrei-Gabriel
+
+Computer Programming HW #3
+
+In order to easily store the image's information, a struct named image was
+declared, that contains the data (pixels, if you will) in a triple pointer,
+width, height, maximum data value, the image type (black and white,
+grayscale or rgb), the file type from which it was read (ascii or binary),
+as well the coordinates that indicate the currently selected zone.
+
+The program executes different commands. It starts by getting such a command.
+
+1) LOAD
+If an image is already loaded, it deletes it.
+Any comments shall be skipped.
+Afterwards, it opens the file (in ascii) whose name is indicated by the
+command, and reads the magic word, from which it learns the image type and
+file type, the width, the heigth, and the max value (if it is not black and
+white).
+If the file type is ascii, it will continue reading normally. If the file type
+is binary, it will close the file and reopen it in order to properly read from
+it.
+The file is promptly closed afterwards.
+If at any point LOAD fails, the following commands will not work.
+
+2) SELECT
+The command parameters must be either "ALL" or 4 coordinates, meaning x1, x2,
+y1 and y2 that specify the selection zone. If the parameter is "ALL", the
+entire image is selected. If coordinates are present: they must all be
+positive, must not exceed the height or the width of the image, some must also
+be different (more specifically x1 != x2 and y1 != y2). ROTATE, CROP and APPLY
+are done on selected zones.
+
+3) ROTATE
+The command parameter is an angle. The only angles that are not invalid are
+multiples of 90, be them positive or negative. Images that need to be rotated
+using negative angles, will be rotated clockwise to (360 - |the original
+angle|) degrees. Rotation can only be done when the image is either fully
+selected, or the selection is a square. In order to rotate an image, the
+program transpose the matrix that stores the data, then swaps the groups of
+pixels (1 pixel for black and white and grayscale, 3 for rgb), on every line.
+The coordinates of the selected image or of the image itself must also be
+swapped accordingly.
+
+4) CROP
+The program allocates memory for a new matrix to store the cropped image's
+data, frees the old one and changes the height and the width according to
+the selection coordinates.
+
+5) APPLY
+Every value in the matrix is changed based on the values of the pixels
+around it. Basically, they are replaced with the sum of the values of said
+pixels and its own value, each one multiplied by a specific number mentioned
+in the filter's 3 x 3 kernel. Some filters also have the sum be divided by
+another number. If after the operation, the value ends up less than 0 or
+greater than 255, the clamp function is applied. The image is saved as a
+double, and is only aproximated as an unsigned char when the SAVE command
+is given, using the round function. If no filter is given, the command is
+considered invalid.
+The outline of the full image (if the image is fully selected) is not be
+affected by APPLY.
+
+6) SAVE
+All information concerning the loaded image is written in the file specified
+by the SAVE command. The program assumes the file in which to write to be
+binary, unless specified otherwise by the SAVE command by having "ascii" as
+a parameter. The magic word is obtained from the image type and file type.
+The same algorithm from the LOAD function when it comes to opening and reading
+is applied when opening the file and writing in it.
+
+7) EXIT
+All allocated memory is freed. The program stops.
+
+Any invalid commands print an error message.
